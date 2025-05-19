@@ -26,5 +26,6 @@ export async function getChatMessages(chatId: number) {
   return await db.getChatMessages(chatId);
 }
 
-// Export getChatMessages as loadChatMessages for backward compatibility
+// Export getChatMessages as loadChatMessages and saveChatMessages for backward compatibility
 export const loadChatMessages = getChatMessages;
+export const saveChatMessages = getChatMessages;
