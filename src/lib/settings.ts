@@ -51,7 +51,7 @@ export const MODELS: ModelConfig[] = [
   }
 ];
 
-const DEFAULT_ENDPOINTS: EndpointConfig[] = [
+export const DEFAULT_ENDPOINTS: EndpointConfig[] = [
   {
     id: 'anthropic',
     name: 'Anthropic',

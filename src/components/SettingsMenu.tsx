@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Settings, Plus, X, Check, AlertCircle } from 'lucide-react';
+import { Settings, Plus, X, Check, AlertCircle, RotateCcw } from 'lucide-react';
 import { EndpointConfig } from '../lib/types';
-import { loadSettings, saveSettings } from '../lib/settings';
+import { loadSettings, saveSettings, DEFAULT_ENDPOINTS } from '../lib/settings';
 
 interface SettingsMenuProps {
   isOpen: boolean;
@@ -67,6 +67,12 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
     setEndpoints(updated);
     saveSettings(updated);
   };
+
+  const handleResetSettings = () => {
+    setEndpoints(DEFAULT_ENDPOINTS);
+    saveSettings(DEFAULT_ENDPOINTS);
+    setShowCustomForm(false);
+  };
   
   if (!isOpen) return null;
   
@@ -81,9 +87,19 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
               <Settings className="w-5 h-5 text-gray-500 mr-2" />
               <h2 className="text-lg font-semibold text-gray-900">Summarization Settings</h2>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleResetSettings}
+                className="flex items-center px-3 py-1.5 text-sm text-red-600 hover:text-red-700 transition-colors"
+                title="Reset to default settings"
+              >
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Reset Settings
+              </button>
+              <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
           
           <div className="p-6">
