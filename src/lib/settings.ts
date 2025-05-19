@@ -17,7 +17,7 @@ export const MODELS: ModelConfig[] = [
     id: 'claude-3-7-sonnet-20250219',
     name: 'Claude 3.7 Sonnet',
     provider: 'anthropic',
-    model: 'claude-3-7-sonnet',
+    model: 'claude-3-7-sonnet-20250219',
     maxTokens: 4096,
     contextWindow: 200000,
     description: 'Balanced performance and efficiency'
@@ -104,7 +104,7 @@ export function formatRequestBody(
   console.log('[settings] Custom body:', customBody);
 
   const baseBody = {
-    model: model.model,
+    model: model.id, // Use model.id instead of model.model
     messages,
     max_tokens: model.maxTokens,
     ...customBody
