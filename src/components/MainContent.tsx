@@ -20,7 +20,7 @@ const DEFAULT_PROMPT = `Please provide a concise summary of the following conver
 
 Keep the summary clear and focused on the most relevant information.`;
 
-const MainContent: React.FC = () => {
+const MainContent: React.FC<{ onChatOpen: () => void }> = ({ onChatOpen }) => {
   const [activeTab, setActiveTab] = useState<'conversations' | 'stats'>('conversations');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState<DateFilter>({
@@ -193,7 +193,7 @@ const MainContent: React.FC = () => {
     setIsSummarizing(true);
     setError(null);
     setIsSummarizeModalOpen(false);
-    setIsChatOpen(true);
+    onChatOpen();
     
     const userMessage: ChatMessage = {
       id: generateMessageId(),
@@ -339,7 +339,7 @@ const MainContent: React.FC = () => {
     );
   
   return (
-    <div className="flex-1 container mx-auto px-4 py-4">
+    <div className="h-full overflow-hidden">
       <div className="mb-6">
         <SearchBar 
           onSearch={handleSearch} 
@@ -373,50 +373,36 @@ const MainContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex gap-6">
-        <div className="flex-1">
-          {activeTab === 'conversations' && (
-            <div className="bg-white rounded-lg shadow">
-              {selectedConversation ? (
-                <ConversationDetail
-                  conversation={selectedConversation}
-                  messages={conversationMessages}
-                  searchTerm={searchTerm}
-                  onBack={() => setSelectedConversation(null)}
-                  isLoading={isLoadingMessages}
-                />
-              ) : (
-                <ConversationList
-                  searchResults={searchResults}
-                  searchTerm={searchTerm}
-                  onConversationSelect={handleConversationSelect}
-                  onSelectionChange={handleSelectionChange}
-                  selectedCount={selectedResults.size}
-                  onExport={handleExport}
-                  onSummarize={handleSummarize}
-                  canSummarize={canSummarize}
-                  onCancelSelection={handleCancelSelection}
-                  isLoading={isSearching}
-                />
-              )}
-            </div>
-          )}
-          
-          {activeTab === 'stats' && (
-            <StatsTab />
-          )}
-        </div>
-
-        {isChatOpen && (
-          <div className="w-[400px] bg-white rounded-lg shadow flex flex-col">
-            <ChatSidebar
-              isOpen={isChatOpen}
-              onClose={() => setIsChatOpen(false)}
-              messages={chatMessages}
-              onSendMessage={handleSendMessage}
-              isLoading={isSummarizing}
-            />
+      <div className="h-[calc(100vh-280px)] overflow-hidden">
+        {activeTab === 'conversations' && (
+          <div className="bg-white rounded-lg shadow h-full overflow-hidden">
+            {selectedConversation ? (
+              <ConversationDetail
+                conversation={selectedConversation}
+                messages={conversationMessages}
+                searchTerm={searchTerm}
+                onBack={() => setSelectedConversation(null)}
+                isLoading={isLoadingMessages}
+              />
+            ) : (
+              <ConversationList
+                searchResults={searchResults}
+                searchTerm={searchTerm}
+                onConversationSelect={handleConversationSelect}
+                onSelectionChange={handleSelectionChange}
+                selectedCount={selectedResults.size}
+                onExport={handleExport}
+                onSummarize={handleSummarize}
+                canSummarize={canSummarize}
+                onCancelSelection={handleCancelSelection}
+                isLoading={isSearching}
+              />
+            )}
           </div>
+        )}
+        
+        {activeTab === 'stats' && (
+          <StatsTab />
         )}
       </div>
 

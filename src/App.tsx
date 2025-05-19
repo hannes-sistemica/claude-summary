@@ -85,24 +85,26 @@ function App() {
   }
   
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50">
       <Header 
         showUpload={isDataLoaded} 
         isChatOpen={isChatOpen}
         onChatToggle={() => setIsChatOpen(!isChatOpen)}
       />
       
-      <div className="flex-1 flex">
-        <div className={`flex-1 container mx-auto px-4 py-4 ${isChatOpen ? 'mr-[380px]' : ''}`}>
-          {isDataLoaded ? (
-            <MainContent onChatOpen={() => setIsChatOpen(true)} />
-          ) : (
-            <UploadSection onDataLoaded={() => setIsDataLoaded(true)} />
-          )}
+      <div className="flex-1 flex overflow-hidden">
+        <div className={`flex-1 overflow-auto ${isChatOpen ? 'mr-[380px]' : ''}`}>
+          <div className="container mx-auto px-4 py-4">
+            {isDataLoaded ? (
+              <MainContent onChatOpen={() => setIsChatOpen(true)} />
+            ) : (
+              <UploadSection onDataLoaded={() => setIsDataLoaded(true)} />
+            )}
+          </div>
         </div>
         
         {isChatOpen && (
-          <div className="w-[380px] border-l border-gray-200 bg-white">
+          <div className="fixed right-0 top-0 bottom-0 w-[380px] border-l border-gray-200 bg-white mt-[73px]">
             <ChatSidebar
               isOpen={isChatOpen}
               onClose={() => setIsChatOpen(false)}
