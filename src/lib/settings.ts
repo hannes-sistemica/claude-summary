@@ -51,19 +51,12 @@ export const MODELS: ModelConfig[] = [
   }
 ];
 
-const PROVIDER_ENDPOINTS = {
-  anthropic: 'https://llm.sistemica.cloud',
-  openai: 'https://api.openai.com/v1/chat/completions',
-  mistral: 'https://api.mistral.ai/v1/chat/completions',
-  grok: 'https://api.grok.x/v1/chat/completions'
-} as const;
-
 const DEFAULT_ENDPOINTS: EndpointConfig[] = [
   {
     id: 'anthropic',
     name: 'Anthropic',
     type: 'anthropic',
-    url: PROVIDER_ENDPOINTS.anthropic,
+    url: '',
     model: MODELS[0].id,
     isActive: false
   },
@@ -71,7 +64,7 @@ const DEFAULT_ENDPOINTS: EndpointConfig[] = [
     id: 'openai',
     name: 'OpenAI',
     type: 'openai',
-    url: PROVIDER_ENDPOINTS.openai,
+    url: 'https://api.openai.com/v1/chat/completions',
     model: MODELS.find(m => m.provider === 'openai')?.id,
     isActive: false
   },
@@ -79,7 +72,7 @@ const DEFAULT_ENDPOINTS: EndpointConfig[] = [
     id: 'mistral',
     name: 'Mistral',
     type: 'mistral',
-    url: PROVIDER_ENDPOINTS.mistral,
+    url: 'https://api.mistral.ai/v1/chat/completions',
     model: MODELS.find(m => m.provider === 'mistral')?.id,
     isActive: false
   },
@@ -87,7 +80,7 @@ const DEFAULT_ENDPOINTS: EndpointConfig[] = [
     id: 'grok',
     name: 'Grok',
     type: 'grok',
-    url: PROVIDER_ENDPOINTS.grok,
+    url: 'https://api.grok.x/v1/chat/completions',
     model: 'grok-1',
     isActive: false
   }
