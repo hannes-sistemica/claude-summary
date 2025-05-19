@@ -377,8 +377,8 @@ const MainContent: React.FC = () => {
         </div>
       </div>
       
-      <div className={`flex transition-all duration-300 ${isChatOpen ? 'mr-[30%]' : ''}`}>
-        <div className="flex-1">
+      <div className="flex">
+        <div className={`flex-1 transition-all duration-300 ${isChatOpen ? 'mr-[400px]' : ''}`}>
           {activeTab === 'conversations' && (
             <div className="bg-white rounded-lg shadow">
               {selectedConversation ? (
@@ -410,6 +410,14 @@ const MainContent: React.FC = () => {
             <StatsTab />
           )}
         </div>
+
+        <ChatSidebar
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          messages={chatMessages}
+          onSendMessage={handleSendMessage}
+          isLoading={isSummarizing}
+        />
       </div>
 
       <SummarizeModal
@@ -418,14 +426,6 @@ const MainContent: React.FC = () => {
         onSubmit={handleSummarizeSubmit}
         defaultPrompt={DEFAULT_PROMPT}
         stats={totalStats}
-        isLoading={isSummarizing}
-      />
-
-      <ChatSidebar
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        messages={chatMessages}
-        onSendMessage={handleSendMessage}
         isLoading={isSummarizing}
       />
 
