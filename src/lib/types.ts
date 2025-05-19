@@ -18,6 +18,22 @@ export interface Message {
   created_at: string | null;
 }
 
+export interface Chat {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  conversationId?: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId: number;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
 export interface SearchResult {
   conversation: Conversation;
   matchType: 'title' | 'content' | 'both';
@@ -77,14 +93,6 @@ export interface ClaudeConversation {
     uuid: string;
   };
   chat_messages: ClaudeMessage[];
-}
-
-// Chat types
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
 }
 
 // Component props types

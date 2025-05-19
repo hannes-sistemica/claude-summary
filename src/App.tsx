@@ -5,14 +5,15 @@ import MainContent from './components/MainContent';
 import ChatSidebar from './components/ChatSidebar';
 import { db } from './lib/database';
 import { ChatMessage } from './lib/types';
-import { loadChatMessages, saveChatMessages, generateMessageId } from './lib/chat';
+import { createNewChat, addChatMessage, getChatMessages } from './lib/chat';
 
 function App() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(loadChatMessages());
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
   
   useEffect(() => {
     const checkDatabase = async () => {
@@ -29,31 +30,28 @@ function App() {
     checkDatabase();
   }, []);
 
-  useEffect(() => {
-    saveChatMessages(chatMessages);
-  }, [chatMessages]);
-
   const handleSendMessage = async (message: string) => {
-    const userMessage: ChatMessage = {
-      id: generateMessageId(),
-      role: 'user',
-      content: message,
-      timestamp: Date.now()
-    };
+    let chatId = currentChatId;
     
-    setChatMessages(prev => [...prev, userMessage]);
+    if (!chatId) {
+      chatId = await createNewChat('New Chat');
+      setCurrentChatId(chatId);
+    }
+    
     setIsLoading(true);
     
     try {
-      // Simulate AI response for now
-      const assistantMessage: ChatMessage = {
-        id: generateMessageId(),
-        role: 'assistant',
-        content: `I received your message: "${message}". However, this is just a placeholder response as the chat functionality is not yet implemented.`,
-        timestamp: Date.now()
-      };
+      const userMessage = await addChatMessage(chatId, 'user', message);
+      setChatMessages(prev => [...prev, userMessage]);
       
-      setTimeout(() => {
+      // Simulate AI response for now
+      setTimeout(async () => {
+        const assistantMessage = await addChatMessage(
+          chatId,
+          'assistant',
+          `I received your message: "${message}". However, this is just a placeholder response as the chat functionality is not yet implemented.`
+        );
+        
         setChatMessages(prev => [...prev, assistantMessage]);
         setIsLoading(false);
       }, 1000);
@@ -61,16 +59,25 @@ function App() {
     } catch (error) {
       console.error('Failed to process message:', error);
       
-      const errorMessage: ChatMessage = {
-        id: generateMessageId(),
-        role: 'assistant',
-        content: `Error: ${error.message || 'Failed to process your message.'}`,
-        timestamp: Date.now()
-      };
+      if (chatId) {
+        const errorMessage = await addChatMessage(
+          chatId,
+          'assistant',
+          `Error: ${error.message || 'Failed to process your message.'}`
+        );
+        
+        setChatMessages(prev => [...prev, errorMessage]);
+      }
       
-      setChatMessages(prev => [...prev, errorMessage]);
       setIsLoading(false);
     }
+  };
+
+  const handleStartNewChat = async (title: string, conversationId?: number) => {
+    const chatId = await createNewChat(title, conversationId);
+    setCurrentChatId(chatId);
+    setChatMessages([]);
+    setIsChatOpen(true);
   };
   
   if (!isInitialized) {
@@ -96,7 +103,10 @@ function App() {
         <div className={`flex-1 overflow-auto ${isChatOpen ? 'mr-[380px]' : ''}`}>
           <div className="container mx-auto px-4 py-4">
             {isDataLoaded ? (
-              <MainContent onChatOpen={() => setIsChatOpen(true)} />
+              <MainContent 
+                onChatOpen={() => setIsChatOpen(true)}
+                onStartNewChat={handleStartNewChat}
+              />
             ) : (
               <UploadSection onDataLoaded={() => setIsDataLoaded(true)} />
             )}

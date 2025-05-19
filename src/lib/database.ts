@@ -1,22 +1,28 @@
 import Dexie, { Table } from 'dexie';
-import { Conversation, Message, SearchResult, DateFilter } from './types';
+import { Conversation, Message, SearchResult, DateFilter, Chat, ChatMessage } from './types';
 
 class ClaudeDatabase extends Dexie {
   conversations!: Table<Conversation, number>;
   messages!: Table<Message, number>;
+  chats!: Table<Chat, number>;
+  chatMessages!: Table<ChatMessage, string>;
   
   constructor() {
     super('claudeConversationsDB');
     
-    this.version(1).stores({
+    this.version(2).stores({
       conversations: '++id, claude_id, created_at, updated_at, title',
-      messages: '++id, conversationId, role, created_at, [conversationId+created_at]'
+      messages: '++id, conversationId, role, created_at, [conversationId+created_at]',
+      chats: '++id, conversationId, created_at, updated_at',
+      chatMessages: 'id, chatId, role, timestamp'
     });
   }
   
   async resetDatabase() {
     await this.conversations.clear();
     await this.messages.clear();
+    await this.chats.clear();
+    await this.chatMessages.clear();
   }
   
   async addConversation(conversation: Omit<Conversation, 'id'>) {
@@ -32,6 +38,30 @@ class ClaudeDatabase extends Dexie {
       .where('conversationId')
       .equals(conversationId)
       .toArray();
+  }
+  
+  async createChat(title: string, conversationId?: number) {
+    const now = new Date().toISOString();
+    return await this.chats.add({
+      title,
+      created_at: now,
+      updated_at: now,
+      conversationId
+    });
+  }
+  
+  async addChatMessage(message: ChatMessage) {
+    await this.chatMessages.add(message);
+    await this.chats.update(message.chatId, {
+      updated_at: new Date().toISOString()
+    });
+  }
+  
+  async getChatMessages(chatId: number) {
+    return await this.chatMessages
+      .where('chatId')
+      .equals(chatId)
+      .sortBy('timestamp');
   }
   
   async searchConversations(term: string, dateFilter: DateFilter): Promise<SearchResult[]> {
