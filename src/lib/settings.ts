@@ -161,20 +161,15 @@ function saveApiKeys(keys: StoredApiKeys): void {
 }
 
 export function loadSettings(): EndpointConfig[] {
-  console.log('[settings] Loading settings');
   const apiKeys = loadApiKeys();
   
-  const endpoints = DEFAULT_ENDPOINTS.map(endpoint => ({
+  return DEFAULT_ENDPOINTS.map(endpoint => ({
     ...endpoint,
     apiKey: apiKeys[endpoint.id]
   }));
-  
-  console.log('[settings] Loaded settings:', endpoints);
-  return endpoints;
 }
 
 export function saveSettings(settings: EndpointConfig[]): void {
-  console.log('[settings] Saving settings:', settings);
   const apiKeys: StoredApiKeys = {};
   
   settings.forEach(endpoint => {
@@ -187,11 +182,8 @@ export function saveSettings(settings: EndpointConfig[]): void {
 }
 
 export function getActiveEndpoint(): EndpointConfig | null {
-  console.log('[settings] Getting active endpoint');
-  const settings = loadSettings();
-  const active = settings.find(endpoint => endpoint.isActive) || null;
-  console.log('[settings] Active endpoint:', active);
-  return active;
+  const endpoints = loadSettings();
+  return endpoints.find(endpoint => endpoint.isActive) || null;
 }
 
 export function resetSettings(): void {

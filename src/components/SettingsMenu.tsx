@@ -9,7 +9,7 @@ interface SettingsMenuProps {
 }
 
 const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
-  const [endpoints, setEndpoints] = useState<EndpointConfig[]>(loadSettings);
+  const [endpoints, setEndpoints] = useState<EndpointConfig[]>(loadSettings());
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [customEndpoint, setCustomEndpoint] = useState<Partial<EndpointConfig>>({
     type: 'custom',
@@ -70,7 +70,11 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
 
   const handleResetSettings = () => {
     resetSettings();
-    setEndpoints(DEFAULT_ENDPOINTS);
+    const defaultEndpoints = DEFAULT_ENDPOINTS.map(endpoint => ({
+      ...endpoint,
+      apiKey: undefined
+    }));
+    setEndpoints(defaultEndpoints);
     setShowCustomForm(false);
   };
   
