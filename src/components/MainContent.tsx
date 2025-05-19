@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { X } from 'lucide-react';
 import SearchBar from './SearchBar';
 import ConversationList from './ConversationList';
 import ConversationDetail from './ConversationDetail';
@@ -378,36 +377,40 @@ const MainContent: React.FC = () => {
         </div>
       </div>
       
-      {activeTab === 'conversations' && (
-        <div className="bg-white rounded-lg shadow">
-          {selectedConversation ? (
-            <ConversationDetail
-              conversation={selectedConversation}
-              messages={conversationMessages}
-              searchTerm={searchTerm}
-              onBack={() => setSelectedConversation(null)}
-              isLoading={isLoadingMessages}
-            />
-          ) : (
-            <ConversationList
-              searchResults={searchResults}
-              searchTerm={searchTerm}
-              onConversationSelect={handleConversationSelect}
-              onSelectionChange={handleSelectionChange}
-              selectedCount={selectedResults.size}
-              onExport={handleExport}
-              onSummarize={handleSummarize}
-              canSummarize={canSummarize}
-              onCancelSelection={handleCancelSelection}
-              isLoading={isSearching}
-            />
+      <div className={`flex transition-all duration-300 ${isChatOpen ? 'mr-[30%]' : ''}`}>
+        <div className="flex-1">
+          {activeTab === 'conversations' && (
+            <div className="bg-white rounded-lg shadow">
+              {selectedConversation ? (
+                <ConversationDetail
+                  conversation={selectedConversation}
+                  messages={conversationMessages}
+                  searchTerm={searchTerm}
+                  onBack={() => setSelectedConversation(null)}
+                  isLoading={isLoadingMessages}
+                />
+              ) : (
+                <ConversationList
+                  searchResults={searchResults}
+                  searchTerm={searchTerm}
+                  onConversationSelect={handleConversationSelect}
+                  onSelectionChange={handleSelectionChange}
+                  selectedCount={selectedResults.size}
+                  onExport={handleExport}
+                  onSummarize={handleSummarize}
+                  canSummarize={canSummarize}
+                  onCancelSelection={handleCancelSelection}
+                  isLoading={isSearching}
+                />
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'stats' && (
+            <StatsTab />
           )}
         </div>
-      )}
-      
-      {activeTab === 'stats' && (
-        <StatsTab />
-      )}
+      </div>
 
       <SummarizeModal
         isOpen={isSummarizeModalOpen}
