@@ -104,7 +104,7 @@ function App() {
         </div>
         
         {isChatOpen && (
-          <div className="fixed right-0 top-0 bottom-0 w-[380px] border-l border-gray-200 bg-white mt-[73px]">
+          <div className="fixed right-0 top-[73px] bottom-[57px] w-[380px] border-l border-gray-200 bg-white">
             <ChatSidebar
               isOpen={isChatOpen}
               onClose={() => setIsChatOpen(false)}
@@ -116,7 +116,7 @@ function App() {
         )}
       </div>
       
-      <footer className="py-4 px-6 text-center text-gray-500 text-sm bg-white border-t">
+      <footer className="py-4 px-6 text-center text-gray-500 text-sm bg-white border-t fixed bottom-0 w-full">
         <p>Claude Conversation Analyzer &copy; {new Date().getFullYear()}</p>
       </footer>
     </div>
