@@ -87,7 +87,10 @@ const DEFAULT_ENDPOINTS: EndpointConfig[] = [
 ];
 
 export function getModelById(id: string): ModelConfig | undefined {
-  return MODELS.find(model => model.id === id);
+  console.log('[settings] Getting model by ID:', id);
+  const model = MODELS.find(model => model.id === id);
+  console.log('[settings] Found model:', model);
+  return model;
 }
 
 export function formatRequestBody(
@@ -95,6 +98,11 @@ export function formatRequestBody(
   messages: { role: string; content: string }[],
   customBody?: Record<string, unknown>
 ): Record<string, unknown> {
+  console.log('[settings] Formatting request body');
+  console.log('[settings] Model:', model);
+  console.log('[settings] Messages:', messages);
+  console.log('[settings] Custom body:', customBody);
+
   const baseBody = {
     model: model.model,
     messages,
@@ -103,43 +111,59 @@ export function formatRequestBody(
   };
 
   if (model.provider !== 'anthropic') {
-    return {
+    const body = {
       ...baseBody,
       temperature: 0.7
     };
+    console.log('[settings] Final request body:', body);
+    return body;
   }
 
+  console.log('[settings] Final request body:', baseBody);
   return baseBody;
 }
 
 export function parseResponse(data: any, provider: string): string {
+  console.log('[settings] Parsing response for provider:', provider);
+  console.log('[settings] Response data:', data);
+
   if (provider === 'anthropic') {
     if (!data.content?.[0]?.text) {
+      console.error('[settings] Invalid Anthropic API response format');
       throw new Error('Invalid Anthropic API response format');
     }
     return data.content[0].text;
   }
 
   if (!data.choices?.[0]?.message?.content) {
+    console.error(`[settings] Invalid ${provider} API response format`);
     throw new Error(`Invalid ${provider} API response format`);
   }
   return data.choices[0].message.content;
 }
 
 export function loadSettings(): EndpointConfig[] {
+  console.log('[settings] Loading settings');
   try {
     const stored = localStorage.getItem(SETTINGS_KEY);
-    return stored ? JSON.parse(stored) : DEFAULT_ENDPOINTS;
-  } catch {
+    const settings = stored ? JSON.parse(stored) : DEFAULT_ENDPOINTS;
+    console.log('[settings] Loaded settings:', settings);
+    return settings;
+  } catch (error) {
+    console.error('[settings] Error loading settings:', error);
     return DEFAULT_ENDPOINTS;
   }
 }
 
 export function saveSettings(settings: EndpointConfig[]): void {
+  console.log('[settings] Saving settings:', settings);
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
 
 export function getActiveEndpoint(): EndpointConfig | null {
+  console.log('[settings] Getting active endpoint');
   const settings = loadSettings();
-  return settings.find(endpoint => endpoint.isActive) || null;
+  const active = settings.find(endpoint => endpoint.isActive) || null;
+  console.log('[settings] Active endpoint:', active);
+  return active;
 }

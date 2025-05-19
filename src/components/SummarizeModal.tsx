@@ -13,19 +13,34 @@ const SummarizeModal: React.FC<SummarizeModalProps> = ({
   isLoading
 }) => {
   const [prompt, setPrompt] = useState(defaultPrompt);
+  const [selectedModel, setSelectedModel] = useState('');
   const activeEndpoint = getActiveEndpoint();
   const availableModels = MODELS.filter(
     model => model.provider === activeEndpoint?.type
   );
 
+  React.useEffect(() => {
+    if (availableModels.length > 0) {
+      const initialModel = availableModels[0].id;
+      console.log('[SummarizeModal] Setting initial model:', initialModel);
+      setSelectedModel(initialModel);
+    }
+  }, [availableModels]);
+
   if (!isOpen) return null;
 
   const handleSubmit = () => {
-    const modelId = availableModels[0]?.id;
-    if (!modelId) {
-      throw new Error('No model available for the selected endpoint');
+    console.log('[SummarizeModal] Submit clicked');
+    console.log('[SummarizeModal] Selected model:', selectedModel);
+    console.log('[SummarizeModal] Active endpoint:', activeEndpoint);
+    console.log('[SummarizeModal] Available models:', availableModels);
+    console.log('[SummarizeModal] Prompt:', prompt);
+
+    if (!selectedModel) {
+      console.error('[SummarizeModal] No model selected');
+      throw new Error('No model selected');
     }
-    onSubmit(prompt, modelId);
+    onSubmit(prompt, selectedModel);
   };
 
   return (
@@ -77,9 +92,12 @@ const SummarizeModal: React.FC<SummarizeModalProps> = ({
               Model
             </label>
             <select
-              disabled
-              value={availableModels[0]?.id || ''}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50"
+              value={selectedModel}
+              onChange={(e) => {
+                console.log('[SummarizeModal] Model changed to:', e.target.value);
+                setSelectedModel(e.target.value);
+              }}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
             >
               {availableModels.map(model => (
                 <option key={model.id} value={model.id}>
