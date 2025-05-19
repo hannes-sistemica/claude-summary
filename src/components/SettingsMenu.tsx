@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Settings, Plus, X, Check, AlertCircle, RotateCcw } from 'lucide-react';
 import { EndpointConfig } from '../lib/types';
-import { loadSettings, saveSettings, DEFAULT_ENDPOINTS } from '../lib/settings';
+import { loadSettings, saveSettings, DEFAULT_ENDPOINTS, resetSettings } from '../lib/settings';
 
 interface SettingsMenuProps {
   isOpen: boolean;
@@ -69,8 +69,8 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
   };
 
   const handleResetSettings = () => {
+    resetSettings();
     setEndpoints(DEFAULT_ENDPOINTS);
-    saveSettings(DEFAULT_ENDPOINTS);
     setShowCustomForm(false);
   };
   

@@ -10,7 +10,7 @@ export interface ModelConfig {
   description: string;
 }
 
-const SETTINGS_KEY = 'claude_analyzer_settings';
+const API_KEYS_STORAGE_KEY = 'claude_analyzer_api_keys';
 
 export const MODELS: ModelConfig[] = [
   {
@@ -58,7 +58,7 @@ export const DEFAULT_ENDPOINTS: EndpointConfig[] = [
     type: 'anthropic',
     url: 'https://llm.sistemica.cloud',
     model: MODELS[0].id,
-    isActive: false
+    isActive: true
   },
   {
     id: 'openai',
@@ -142,22 +142,48 @@ export function parseResponse(data: any, provider: string): string {
   return data.choices[0].message.content;
 }
 
+interface StoredApiKeys {
+  [endpointId: string]: string;
+}
+
+function loadApiKeys(): StoredApiKeys {
+  try {
+    const stored = localStorage.getItem(API_KEYS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error('[settings] Error loading API keys:', error);
+    return {};
+  }
+}
+
+function saveApiKeys(keys: StoredApiKeys): void {
+  localStorage.setItem(API_KEYS_STORAGE_KEY, JSON.stringify(keys));
+}
+
 export function loadSettings(): EndpointConfig[] {
   console.log('[settings] Loading settings');
-  try {
-    const stored = localStorage.getItem(SETTINGS_KEY);
-    const settings = stored ? JSON.parse(stored) : DEFAULT_ENDPOINTS;
-    console.log('[settings] Loaded settings:', settings);
-    return settings;
-  } catch (error) {
-    console.error('[settings] Error loading settings:', error);
-    return DEFAULT_ENDPOINTS;
-  }
+  const apiKeys = loadApiKeys();
+  
+  const endpoints = DEFAULT_ENDPOINTS.map(endpoint => ({
+    ...endpoint,
+    apiKey: apiKeys[endpoint.id]
+  }));
+  
+  console.log('[settings] Loaded settings:', endpoints);
+  return endpoints;
 }
 
 export function saveSettings(settings: EndpointConfig[]): void {
   console.log('[settings] Saving settings:', settings);
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  const apiKeys: StoredApiKeys = {};
+  
+  settings.forEach(endpoint => {
+    if (endpoint.apiKey) {
+      apiKeys[endpoint.id] = endpoint.apiKey;
+    }
+  });
+  
+  saveApiKeys(apiKeys);
 }
 
 export function getActiveEndpoint(): EndpointConfig | null {
@@ -166,4 +192,8 @@ export function getActiveEndpoint(): EndpointConfig | null {
   const active = settings.find(endpoint => endpoint.isActive) || null;
   console.log('[settings] Active endpoint:', active);
   return active;
+}
+
+export function resetSettings(): void {
+  localStorage.removeItem(API_KEYS_STORAGE_KEY);
 }
