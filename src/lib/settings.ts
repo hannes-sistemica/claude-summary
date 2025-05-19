@@ -56,7 +56,7 @@ const DEFAULT_ENDPOINTS: EndpointConfig[] = [
     id: 'anthropic',
     name: 'Anthropic',
     type: 'anthropic',
-    url: '',
+    url: 'https://llm.sistemica.cloud',
     model: MODELS[0].id,
     isActive: false
   },
