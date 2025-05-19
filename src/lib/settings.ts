@@ -162,7 +162,6 @@ function saveApiKeys(keys: StoredApiKeys): void {
 
 export function loadSettings(): EndpointConfig[] {
   const apiKeys = loadApiKeys();
-  
   return DEFAULT_ENDPOINTS.map(endpoint => ({
     ...endpoint,
     apiKey: apiKeys[endpoint.id]
