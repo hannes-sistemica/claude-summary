@@ -37,7 +37,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled }) => {
         onKeyDown={handleKeyDown}
         placeholder="Type your message..."
         disabled={disabled}
-        className="flex-1 resize-none rounded-lg border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed min-h-[40px] max-h-[120px]"
+        className="flex-1 resize-none rounded-lg border border-gray-300 p-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed min-h-[40px] max-h-[120px]"
         rows={1}
       />
       
