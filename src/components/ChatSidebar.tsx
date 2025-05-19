@@ -24,7 +24,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   if (!isOpen) return null;
   
   return (
-    <div className="h-full flex flex-col rounded-l-lg">
+    <div className="h-[calc(100vh-64px)] flex flex-col rounded-l-lg">
       <div className="flex items-center justify-between p-4 pt-6 border-b">
         <h3 className="text-lg font-semibold text-gray-900">Chat</h3>
         <button
@@ -49,7 +49,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="mt-auto">
+      <div className="mt-auto border-t">
         <ChatInput onSendMessage={onSendMessage} disabled={isLoading} />
       </div>
     </div>
