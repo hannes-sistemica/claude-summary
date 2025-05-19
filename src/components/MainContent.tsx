@@ -207,11 +207,7 @@ const MainContent: React.FC = () => {
     try {
       const endpoint = getActiveEndpoint();
       if (!endpoint) {
-        throw new Error('No active endpoint configured. Please configure an API endpoint in settings.');
-      }
-
-      if (!endpoint.url || !endpoint.apiKey) {
-        throw new Error('Incomplete endpoint configuration. Please check your API settings and ensure both the URL and API key are provided.');
+        throw new Error('No active endpoint configured.');
       }
 
       const selectedConversations = searchResults
@@ -377,8 +373,8 @@ const MainContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex">
-        <div className={`flex-1 transition-all duration-300 ${isChatOpen ? 'mr-[400px]' : ''}`}>
+      <div className="flex gap-6">
+        <div className="flex-1">
           {activeTab === 'conversations' && (
             <div className="bg-white rounded-lg shadow">
               {selectedConversation ? (
@@ -411,13 +407,17 @@ const MainContent: React.FC = () => {
           )}
         </div>
 
-        <ChatSidebar
-          isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
-          messages={chatMessages}
-          onSendMessage={handleSendMessage}
-          isLoading={isSummarizing}
-        />
+        {isChatOpen && (
+          <div className="w-[400px] bg-white rounded-lg shadow flex flex-col">
+            <ChatSidebar
+              isOpen={isChatOpen}
+              onClose={() => setIsChatOpen(false)}
+              messages={chatMessages}
+              onSendMessage={handleSendMessage}
+              isLoading={isSummarizing}
+            />
+          </div>
+        )}
       </div>
 
       <SummarizeModal
