@@ -102,7 +102,7 @@ function App() {
         </div>
         
         {isChatOpen && (
-          <div className="w-[380px] border-l border-gray-200 bg-white">
+          <div className="w-[380px] bg-white border-l border-gray-200">
             <ChatSidebar
               isOpen={isChatOpen}
               onClose={() => setIsChatOpen(false)}
