@@ -24,8 +24,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   if (!isOpen) return null;
   
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b">
+    <div className="h-full flex flex-col rounded-l-lg overflow-hidden">
+      <div className="flex items-center justify-between p-4 border-b bg-white">
         <h3 className="text-lg font-semibold text-gray-900">Chat</h3>
         <button
           onClick={onClose}
@@ -35,7 +35,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         </button>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pt-6">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
@@ -49,7 +49,9 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <div ref={messagesEndRef} />
       </div>
       
-      <ChatInput onSendMessage={onSendMessage} disabled={isLoading} />
+      <div className="mt-auto">
+        <ChatInput onSendMessage={onSendMessage} disabled={isLoading} />
+      </div>
     </div>
   );
 };
