@@ -49,7 +49,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="border-t bg-white">
+      <div className="bg-white">
         <ChatInput onSendMessage={onSendMessage} disabled={isLoading} />
       </div>
     </div>

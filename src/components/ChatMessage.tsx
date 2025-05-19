@@ -1,5 +1,7 @@
 import React from 'react';
 import { User, Bot } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { ChatMessageProps } from '../lib/types';
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
@@ -19,7 +21,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         <div className={`inline-block max-w-[80%] rounded-lg px-4 py-2 ${
           isUser ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'
         }`}>
-          <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </div>
         </div>
         <div className="mt-1">
           <span className="text-xs text-gray-500">
