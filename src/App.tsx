@@ -11,6 +11,7 @@ function App() {
   useEffect(() => {
     const checkDatabase = async () => {
       try {
+        // Check if we have any conversations in the database
         const count = await db.conversations.count();
         setIsDataLoaded(count > 0);
         setIsInitialized(true);
@@ -35,20 +36,16 @@ function App() {
   }
   
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header showUpload={isDataLoaded} />
       
-      <div className="flex-1 overflow-hidden">
-        {isDataLoaded ? (
-          <MainContent />
-        ) : (
-          <div className="h-full overflow-auto">
-            <UploadSection onDataLoaded={() => setIsDataLoaded(true)} />
-          </div>
-        )}
-      </div>
+      {isDataLoaded ? (
+        <MainContent />
+      ) : (
+        <UploadSection onDataLoaded={() => setIsDataLoaded(true)} />
+      )}
       
-      <footer className="flex-shrink-0 py-4 px-6 text-center text-gray-500 text-sm">
+      <footer className="mt-auto py-4 px-6 text-center text-gray-500 text-sm">
         <p>Claude Conversation Analyzer &copy; {new Date().getFullYear()}</p>
       </footer>
     </div>
