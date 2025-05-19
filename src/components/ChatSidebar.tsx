@@ -24,11 +24,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   if (!isOpen) return null;
   
   return (
-    <div 
-      className={`fixed top-0 right-0 h-screen w-[400px] bg-white border-l border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}
-    >
+    <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b">
         <h3 className="text-lg font-semibold text-gray-900">Chat</h3>
         <button
