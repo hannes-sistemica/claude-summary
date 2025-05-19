@@ -13,10 +13,131 @@ import { getActiveEndpoint } from '../lib/settings';
 import { summarizeConversations } from '../lib/summarize';
 import { loadChatMessages, saveChatMessages, generateMessageId } from '../lib/chat';
 
-// ... (keep all the existing imports and constants)
+const DEFAULT_PROMPT = "Please summarize these conversations";
 
 const MainContent: React.FC = () => {
-  // ... (keep all the existing state and handlers)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [selectedResults, setSelectedResults] = useState<Set<string>>(new Set());
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [conversationMessages, setConversationMessages] = useState<Message[]>([]);
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [activeTab, setActiveTab] = useState<'conversations' | 'stats'>('conversations');
+  const [isSummarizeModalOpen, setIsSummarizeModalOpen] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [totalStats, setTotalStats] = useState<ConversationStats | null>(null);
+
+  const handleSearch = async (term: string) => {
+    setIsSearching(true);
+    setSearchTerm(term);
+    try {
+      const results = await db.conversations
+        .where('content')
+        .startsWithIgnoreCase(term)
+        .limit(100)
+        .toArray();
+      setSearchResults(results);
+    } catch (err) {
+      setError('Failed to search conversations');
+      console.error('Search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleDateFilterChange = (filter: DateFilter) => {
+    setDateFilter(filter);
+  };
+
+  const handleConversationSelect = async (conversation: Conversation) => {
+    setIsLoadingMessages(true);
+    setSelectedConversation(conversation);
+    try {
+      const messages = await db.messages
+        .where('conversationId')
+        .equals(conversation.id)
+        .toArray();
+      setConversationMessages(messages);
+    } catch (err) {
+      setError('Failed to load conversation messages');
+      console.error('Load messages error:', err);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  };
+
+  const handleSelectionChange = (ids: Set<string>) => {
+    setSelectedResults(ids);
+  };
+
+  const handleCancelSelection = () => {
+    setSelectedResults(new Set());
+  };
+
+  const handleExport = async () => {
+    // Export functionality would go here
+  };
+
+  const handleSummarize = () => {
+    setIsSummarizeModalOpen(true);
+  };
+
+  const handleSummarizeSubmit = async (prompt: string) => {
+    setIsSummarizing(true);
+    try {
+      const conversations = await db.conversations
+        .where('id')
+        .anyOf([...selectedResults])
+        .toArray();
+      
+      const summary = await summarizeConversations(conversations, prompt);
+      const newMessage: ChatMessage = {
+        id: generateMessageId(),
+        content: summary,
+        role: 'assistant',
+        timestamp: new Date().toISOString()
+      };
+      
+      const updatedMessages = [...chatMessages, newMessage];
+      setChatMessages(updatedMessages);
+      await saveChatMessages(updatedMessages);
+      setIsChatOpen(true);
+    } catch (err) {
+      setError('Failed to summarize conversations');
+      console.error('Summarize error:', err);
+    } finally {
+      setIsSummarizing(false);
+      setIsSummarizeModalOpen(false);
+    }
+  };
+
+  const handleSendMessage = async (content: string) => {
+    const newMessage: ChatMessage = {
+      id: generateMessageId(),
+      content,
+      role: 'user',
+      timestamp: new Date().toISOString()
+    };
+    
+    const updatedMessages = [...chatMessages, newMessage];
+    setChatMessages(updatedMessages);
+    await saveChatMessages(updatedMessages);
+  };
+
+  const canSummarize = selectedResults.size > 0;
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      const messages = await loadChatMessages();
+      setChatMessages(messages);
+    };
+    loadMessages();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-4">
