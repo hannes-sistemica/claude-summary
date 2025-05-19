@@ -5,7 +5,8 @@ export async function summarizeConversations(
   conversations: Conversation[],
   messages: Message[],
   endpoint: EndpointConfig,
-  prompt: string
+  prompt: string,
+  modelId: string
 ): Promise<string> {
   if (!endpoint.url) {
     throw new Error('API endpoint URL is not configured. Please configure the endpoint URL in settings.');
@@ -15,13 +16,9 @@ export async function summarizeConversations(
     throw new Error('API key is not configured. Please add your API key in settings.');
   }
 
-  if (!endpoint.model) {
-    throw new Error('No model selected. Please select a model in the summarization settings.');
-  }
-
-  const model = getModelById(endpoint.model);
+  const model = getModelById(modelId);
   if (!model) {
-    throw new Error(`Unsupported model: ${endpoint.model}`);
+    throw new Error(`Unsupported model: ${modelId}`);
   }
 
   const conversationTexts = conversations.map(conversation => {

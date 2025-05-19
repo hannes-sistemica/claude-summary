@@ -13,7 +13,6 @@ const SummarizeModal: React.FC<SummarizeModalProps> = ({
   isLoading
 }) => {
   const [prompt, setPrompt] = useState(defaultPrompt);
-  const [selectedModel, setSelectedModel] = useState('');
   const activeEndpoint = getActiveEndpoint();
   const availableModels = MODELS.filter(
     model => model.provider === activeEndpoint?.type
@@ -22,10 +21,11 @@ const SummarizeModal: React.FC<SummarizeModalProps> = ({
   if (!isOpen) return null;
 
   const handleSubmit = () => {
-    if (activeEndpoint) {
-      activeEndpoint.model = selectedModel || availableModels[0]?.id;
+    const modelId = availableModels[0]?.id;
+    if (!modelId) {
+      throw new Error('No model available for the selected endpoint');
     }
-    onSubmit(prompt);
+    onSubmit(prompt, modelId);
   };
 
   return (
@@ -77,9 +77,9 @@ const SummarizeModal: React.FC<SummarizeModalProps> = ({
               Model
             </label>
             <select
-              value={selectedModel || activeEndpoint?.model || availableModels[0]?.id || ''}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md"
+              disabled
+              value={availableModels[0]?.id || ''}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50"
             >
               {availableModels.map(model => (
                 <option key={model.id} value={model.id}>

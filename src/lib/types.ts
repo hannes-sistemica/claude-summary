@@ -131,7 +131,7 @@ export interface ChartContainerProps {
 export interface SummarizeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (prompt: string) => void;
+  onSubmit: (prompt: string, modelId: string) => void;
   defaultPrompt: string;
   stats?: {
     conversations: number;

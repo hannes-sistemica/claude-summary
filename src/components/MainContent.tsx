@@ -184,7 +184,7 @@ const MainContent: React.FC = () => {
     setIsSummarizeModalOpen(true);
   };
 
-  const handleSummarizeSubmit = async (prompt: string) => {
+  const handleSummarizeSubmit = async (prompt: string, modelId: string) => {
     setIsSummarizing(true);
     setSummary(null);
     setError(null);
@@ -222,7 +222,8 @@ const MainContent: React.FC = () => {
         selectedConversations,
         messages,
         endpoint,
-        prompt
+        prompt,
+        modelId
       );
 
       setSummary(result);
