@@ -86,7 +86,11 @@ function App() {
   
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header showUpload={isDataLoaded} />
+      <Header 
+        showUpload={isDataLoaded} 
+        isChatOpen={isChatOpen}
+        onChatToggle={() => setIsChatOpen(!isChatOpen)}
+      />
       
       <div className="flex-1 flex">
         <div className="flex-1 container mx-auto px-4 py-4">

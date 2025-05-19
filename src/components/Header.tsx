@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { FileText, UploadCloud, Settings as SettingsIcon } from 'lucide-react';
+import { FileText, UploadCloud, Settings as SettingsIcon, MessageSquare } from 'lucide-react';
 import { db } from '../lib/database';
 import SettingsMenu from './SettingsMenu';
 
 interface HeaderProps {
   onReset?: () => void;
   showUpload?: boolean;
+  isChatOpen?: boolean;
+  onChatToggle?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onReset, showUpload = false }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  onReset, 
+  showUpload = false, 
+  isChatOpen = false,
+  onChatToggle
+}) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleReset = async () => {
@@ -30,6 +37,17 @@ const Header: React.FC<HeaderProps> = ({ onReset, showUpload = false }) => {
           </div>
           
           <div className="flex items-center space-x-4">
+            <button
+              onClick={onChatToggle}
+              className={`flex items-center px-3 py-2 transition-colors ${
+                isChatOpen 
+                  ? 'text-indigo-600 hover:text-indigo-800' 
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+              title={isChatOpen ? 'Close chat' : 'Open chat'}
+            >
+              <MessageSquare size={20} />
+            </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
               className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors"
