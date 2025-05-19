@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { X, Loader2, GripVertical } from 'lucide-react';
+import { X, Loader2, GripVertical, User, Bot } from 'lucide-react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
