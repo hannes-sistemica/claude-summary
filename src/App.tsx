@@ -85,15 +85,15 @@ function App() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header 
         showUpload={isDataLoaded} 
         isChatOpen={isChatOpen}
         onChatToggle={() => setIsChatOpen(!isChatOpen)}
       />
       
-      <div className="flex-1 flex">
-        <div className="flex-1 container mx-auto px-4 py-4">
+      <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 container mx-auto px-4 py-4 overflow-auto">
           {isDataLoaded ? (
             <MainContent onChatOpen={() => setIsChatOpen(true)} />
           ) : (
@@ -102,7 +102,7 @@ function App() {
         </div>
         
         {isChatOpen && (
-          <div className="w-[400px] bg-white border-l border-gray-200">
+          <div className="w-[380px] border-l border-gray-200 bg-white">
             <ChatSidebar
               isOpen={isChatOpen}
               onClose={() => setIsChatOpen(false)}
@@ -114,7 +114,7 @@ function App() {
         )}
       </div>
       
-      <footer className="py-4 px-6 text-center text-gray-500 text-sm">
+      <footer className="py-4 px-6 text-center text-gray-500 text-sm bg-white border-t">
         <p>Claude Conversation Analyzer &copy; {new Date().getFullYear()}</p>
       </footer>
     </div>
