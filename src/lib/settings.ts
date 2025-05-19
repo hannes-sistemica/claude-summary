@@ -14,7 +14,7 @@ const API_KEYS_STORAGE_KEY = 'claude_analyzer_api_keys';
 
 export const MODELS: ModelConfig[] = [
   {
-    id: 'claude-3-7-sonnet',
+    id: 'claude-3-7-sonnet-20250219',
     name: 'Claude 3.7 Sonnet',
     provider: 'anthropic',
     model: 'claude-3-7-sonnet',
