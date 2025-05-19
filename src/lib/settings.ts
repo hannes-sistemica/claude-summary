@@ -58,7 +58,7 @@ export const DEFAULT_ENDPOINTS: EndpointConfig[] = [
     type: 'anthropic',
     url: 'https://llm.sistemica.cloud',
     model: MODELS[0].id,
-    isActive: true
+    isActive: false
   },
   {
     id: 'openai',
@@ -143,7 +143,10 @@ export function parseResponse(data: any, provider: string): string {
 }
 
 interface StoredApiKeys {
-  [endpointId: string]: string;
+  [endpointId: string]: {
+    key: string;
+    isActive: boolean;
+  };
 }
 
 function loadApiKeys(): StoredApiKeys {
@@ -164,7 +167,8 @@ export function loadSettings(): EndpointConfig[] {
   const apiKeys = loadApiKeys();
   return DEFAULT_ENDPOINTS.map(endpoint => ({
     ...endpoint,
-    apiKey: apiKeys[endpoint.id]
+    apiKey: apiKeys[endpoint.id]?.key,
+    isActive: apiKeys[endpoint.id]?.isActive || false
   }));
 }
 
@@ -173,7 +177,10 @@ export function saveSettings(settings: EndpointConfig[]): void {
   
   settings.forEach(endpoint => {
     if (endpoint.apiKey) {
-      apiKeys[endpoint.id] = endpoint.apiKey;
+      apiKeys[endpoint.id] = {
+        key: endpoint.apiKey,
+        isActive: endpoint.isActive
+      };
     }
   });
   
@@ -182,7 +189,7 @@ export function saveSettings(settings: EndpointConfig[]): void {
 
 export function getActiveEndpoint(): EndpointConfig | null {
   const endpoints = loadSettings();
-  return endpoints.find(endpoint => endpoint.isActive) || null;
+  return endpoints.find(endpoint => endpoint.isActive && endpoint.apiKey) || null;
 }
 
 export function resetSettings(): void {

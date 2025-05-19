@@ -29,6 +29,8 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
   };
   
   const handleActivate = (endpoint: EndpointConfig) => {
+    if (!endpoint.apiKey) return;
+    
     const updated = endpoints.map(ep => ({
       ...ep,
       isActive: ep.id === endpoint.id
@@ -72,7 +74,8 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
     resetSettings();
     const defaultEndpoints = DEFAULT_ENDPOINTS.map(endpoint => ({
       ...endpoint,
-      apiKey: undefined
+      apiKey: undefined,
+      isActive: false
     }));
     setEndpoints(defaultEndpoints);
     setShowCustomForm(false);
@@ -146,13 +149,16 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
                     
                     <button
                       onClick={() => handleActivate(endpoint)}
+                      disabled={!endpoint.apiKey}
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        endpoint.isActive
+                        endpoint.isActive && endpoint.apiKey
                           ? 'bg-green-100 text-green-800'
+                          : !endpoint.apiKey
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                           : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                       }`}
                     >
-                      {endpoint.isActive ? (
+                      {endpoint.isActive && endpoint.apiKey ? (
                         <span className="flex items-center">
                           <Check className="w-4 h-4 mr-1" />
                           Active
