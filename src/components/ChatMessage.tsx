@@ -19,9 +19,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       
       <div className={`flex-1 ${isUser ? 'text-right' : ''}`}>
         <div className={`inline-block max-w-[80%] rounded-lg px-4 py-2 ${
-          isUser ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'
+          isUser ? 'bg-indigo-600' : 'bg-gray-100'
         }`}>
-          <div className="prose prose-sm max-w-none">
+          <div className={`prose prose-sm max-w-none ${isUser ? 'prose-invert' : ''}`}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content}
             </ReactMarkdown>
