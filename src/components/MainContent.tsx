@@ -13,10 +13,12 @@ import { getActiveEndpoint } from '../lib/settings';
 import { summarizeConversations } from '../lib/summarize';
 import { loadChatMessages, saveChatMessages, generateMessageId } from '../lib/chat';
 
-// ... (keep all the existing state and handlers)
-
 const MainContent: React.FC = () => {
   // ... (keep all the existing state and hooks)
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
 
   return (
     <div className="h-full flex flex-col">
