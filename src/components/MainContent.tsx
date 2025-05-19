@@ -207,11 +207,7 @@ const MainContent: React.FC = () => {
     try {
       const endpoint = getActiveEndpoint();
       if (!endpoint) {
-        throw new Error('No active endpoint configured. Please configure an API endpoint in settings.');
-      }
-
-      if (!endpoint.url || !endpoint.apiKey) {
-        throw new Error('Incomplete endpoint configuration. Please check your API settings and ensure both the URL and API key are provided.');
+        throw new Error('No active endpoint configured.');
       }
 
       const selectedConversations = searchResults
