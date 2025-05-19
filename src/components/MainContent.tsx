@@ -339,7 +339,7 @@ const MainContent: React.FC = () => {
     );
   
   return (
-    <div className="flex-1 container mx-auto px-4 py-4">
+    <div className={`container mx-auto px-4 py-4 transition-all duration-300 ${isChatOpen ? 'mr-[400px]' : ''}`}>
       <div className="mb-6">
         <SearchBar 
           onSearch={handleSearch} 
@@ -373,48 +373,46 @@ const MainContent: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex">
-        <div className={`flex-1 transition-all duration-300 ${isChatOpen ? 'mr-[400px]' : ''}`}>
-          {activeTab === 'conversations' && (
-            <div className="bg-white rounded-lg shadow">
-              {selectedConversation ? (
-                <ConversationDetail
-                  conversation={selectedConversation}
-                  messages={conversationMessages}
-                  searchTerm={searchTerm}
-                  onBack={() => setSelectedConversation(null)}
-                  isLoading={isLoadingMessages}
-                />
-              ) : (
-                <ConversationList
-                  searchResults={searchResults}
-                  searchTerm={searchTerm}
-                  onConversationSelect={handleConversationSelect}
-                  onSelectionChange={handleSelectionChange}
-                  selectedCount={selectedResults.size}
-                  onExport={handleExport}
-                  onSummarize={handleSummarize}
-                  canSummarize={canSummarize}
-                  onCancelSelection={handleCancelSelection}
-                  isLoading={isSearching}
-                />
-              )}
-            </div>
-          )}
-          
-          {activeTab === 'stats' && (
-            <StatsTab />
-          )}
-        </div>
-
-        <ChatSidebar
-          isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
-          messages={chatMessages}
-          onSendMessage={handleSendMessage}
-          isLoading={isSummarizing}
-        />
+      <div className="relative">
+        {activeTab === 'conversations' && (
+          <div className="bg-white rounded-lg shadow">
+            {selectedConversation ? (
+              <ConversationDetail
+                conversation={selectedConversation}
+                messages={conversationMessages}
+                searchTerm={searchTerm}
+                onBack={() => setSelectedConversation(null)}
+                isLoading={isLoadingMessages}
+              />
+            ) : (
+              <ConversationList
+                searchResults={searchResults}
+                searchTerm={searchTerm}
+                onConversationSelect={handleConversationSelect}
+                onSelectionChange={handleSelectionChange}
+                selectedCount={selectedResults.size}
+                onExport={handleExport}
+                onSummarize={handleSummarize}
+                canSummarize={canSummarize}
+                onCancelSelection={handleCancelSelection}
+                isLoading={isSearching}
+              />
+            )}
+          </div>
+        )}
+        
+        {activeTab === 'stats' && (
+          <StatsTab />
+        )}
       </div>
+
+      <ChatSidebar
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        messages={chatMessages}
+        onSendMessage={handleSendMessage}
+        isLoading={isSummarizing}
+      />
 
       <SummarizeModal
         isOpen={isSummarizeModalOpen}
