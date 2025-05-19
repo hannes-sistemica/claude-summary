@@ -6,11 +6,13 @@ import ConversationList from './ConversationList';
 import ConversationDetail from './ConversationDetail';
 import StatsTab from './StatsTab';
 import SummarizeModal from './SummarizeModal';
+import ChatSidebar from './ChatSidebar';
 import ErrorModal from './ErrorModal';
-import { Conversation, SearchResult, DateFilter, ConversationStats, Message } from '../lib/types';
+import { Conversation, SearchResult, DateFilter, ConversationStats, Message, ChatMessage } from '../lib/types';
 import { db } from '../lib/database';
 import { getActiveEndpoint } from '../lib/settings';
 import { summarizeConversations } from '../lib/summarize';
+import { loadChatMessages, saveChatMessages, generateMessageId } from '../lib/chat';
 
 const DEFAULT_PROMPT = `Please provide a concise summary of the following conversations, highlighting:
 1. Main topics discussed
@@ -35,7 +37,8 @@ const MainContent: React.FC = () => {
   const [conversationStats, setConversationStats] = useState<Map<number, ConversationStats>>(new Map());
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [summary, setSummary] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(loadChatMessages());
   
   const searchResults = useLiveQuery<SearchResult[]>(
     async () => {
@@ -103,7 +106,6 @@ const MainContent: React.FC = () => {
         }
       }
       
-      // Clean up stats for unselected conversations
       for (const id of newStats.keys()) {
         if (!selectedResults.has(id)) {
           newStats.delete(id);
@@ -115,6 +117,10 @@ const MainContent: React.FC = () => {
     
     calculateStats();
   }, [selectedResults]);
+
+  useEffect(() => {
+    saveChatMessages(chatMessages);
+  }, [chatMessages]);
   
   const handleSearch = (term: string) => {
     setIsSearching(true);
@@ -186,8 +192,18 @@ const MainContent: React.FC = () => {
 
   const handleSummarizeSubmit = async (prompt: string, modelId: string) => {
     setIsSummarizing(true);
-    setSummary(null);
     setError(null);
+    setIsSummarizeModalOpen(false);
+    setIsChatOpen(true);
+    
+    const userMessage: ChatMessage = {
+      id: generateMessageId(),
+      role: 'user',
+      content: prompt,
+      timestamp: Date.now()
+    };
+    
+    setChatMessages(prev => [...prev, userMessage]);
     
     try {
       const endpoint = getActiveEndpoint();
@@ -218,7 +234,7 @@ const MainContent: React.FC = () => {
         throw new Error('Selected conversations contain no messages to summarize.');
       }
 
-      const result = await summarizeConversations(
+      const summary = await summarizeConversations(
         selectedConversations,
         messages,
         endpoint,
@@ -226,20 +242,96 @@ const MainContent: React.FC = () => {
         modelId
       );
 
-      setSummary(result);
+      const assistantMessage: ChatMessage = {
+        id: generateMessageId(),
+        role: 'assistant',
+        content: summary,
+        timestamp: Date.now()
+      };
+      
+      setChatMessages(prev => [...prev, assistantMessage]);
+      
     } catch (error) {
       console.error('Summarization failed:', error);
       setError(error.message || 'An unexpected error occurred during summarization.');
+      
+      const errorMessage: ChatMessage = {
+        id: generateMessageId(),
+        role: 'assistant',
+        content: `Error: ${error.message || 'An unexpected error occurred during summarization.'}`,
+        timestamp: Date.now()
+      };
+      
+      setChatMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsSummarizing(false);
-      setIsSummarizeModalOpen(false);
+    }
+  };
+
+  const handleSendMessage = async (message: string) => {
+    const userMessage: ChatMessage = {
+      id: generateMessageId(),
+      role: 'user',
+      content: message,
+      timestamp: Date.now()
+    };
+    
+    setChatMessages(prev => [...prev, userMessage]);
+    setIsSummarizing(true);
+    
+    try {
+      const endpoint = getActiveEndpoint();
+      if (!endpoint) {
+        throw new Error('No active endpoint configured.');
+      }
+
+      const selectedConversations = searchResults
+        .filter(result => result.selected)
+        .map(result => result.conversation);
+
+      const allMessages = await Promise.all(
+        selectedConversations.map(conv => 
+          db.getConversationMessages(conv.id)
+        )
+      );
+
+      const messages = allMessages.flat();
+      const summary = await summarizeConversations(
+        selectedConversations,
+        messages,
+        endpoint,
+        message,
+        endpoint.model || ''
+      );
+
+      const assistantMessage: ChatMessage = {
+        id: generateMessageId(),
+        role: 'assistant',
+        content: summary,
+        timestamp: Date.now()
+      };
+      
+      setChatMessages(prev => [...prev, assistantMessage]);
+      
+    } catch (error) {
+      console.error('Failed to process message:', error);
+      
+      const errorMessage: ChatMessage = {
+        id: generateMessageId(),
+        role: 'assistant',
+        content: `Error: ${error.message || 'Failed to process your message.'}`,
+        timestamp: Date.now()
+      };
+      
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsSummarizing(false);
     }
   };
   
   const activeEndpoint = getActiveEndpoint();
   const canSummarize = activeEndpoint !== null && activeEndpoint.apiKey !== undefined;
 
-  // Calculate total stats for selected conversations
   const totalStats = searchResults
     .filter(result => result.selected && result.stats)
     .reduce(
@@ -326,28 +418,19 @@ const MainContent: React.FC = () => {
         isLoading={isSummarizing}
       />
 
+      <ChatSidebar
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        messages={chatMessages}
+        onSendMessage={handleSendMessage}
+        isLoading={isSummarizing}
+      />
+
       <ErrorModal
         isOpen={!!error}
         message={error || ''}
         onClose={() => setError(null)}
       />
-
-      {summary && (
-        <div className="fixed bottom-4 right-4 max-w-lg bg-white rounded-lg shadow-lg border border-gray-200 p-4">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold">Summary</h3>
-            <button
-              onClick={() => setSummary(null)}
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <X size={20} />
-            </button>
-          </div>
-          <div className="prose prose-sm max-h-96 overflow-y-auto">
-            {summary}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

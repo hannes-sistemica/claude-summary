@@ -79,6 +79,14 @@ export interface ClaudeConversation {
   chat_messages: ClaudeMessage[];
 }
 
+// Chat types
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
 // Component props types
 export interface FileUploadProps {
   onDataLoaded: () => void;
@@ -139,4 +147,21 @@ export interface SummarizeModalProps {
     words: number;
   };
   isLoading?: boolean;
+}
+
+export interface ChatSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  messages: ChatMessage[];
+  onSendMessage: (message: string) => void;
+  isLoading?: boolean;
+}
+
+export interface ChatMessageProps {
+  message: ChatMessage;
+}
+
+export interface ChatInputProps {
+  onSendMessage: (message: string) => void;
+  disabled?: boolean;
 }
