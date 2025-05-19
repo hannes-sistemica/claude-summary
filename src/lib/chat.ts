@@ -25,3 +25,6 @@ export async function addChatMessage(chatId: number, role: 'user' | 'assistant',
 export async function getChatMessages(chatId: number) {
   return await db.getChatMessages(chatId);
 }
+
+// Export getChatMessages as loadChatMessages for backward compatibility
+export const loadChatMessages = getChatMessages;
