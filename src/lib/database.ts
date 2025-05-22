@@ -13,8 +13,8 @@ class ClaudeDatabase extends Dexie {
     this.version(2).stores({
       conversations: '++id, claude_id, created_at, updated_at, title',
       messages: '++id, conversationId, role, created_at, [conversationId+created_at]',
-      chats: '++id, conversationId, created_at, updated_at',
-      chatMessages: 'id, chatId, role, timestamp'
+      chats: '++id, title, created_at, updated_at, conversationId',
+      chatMessages: 'id, chatId, role, timestamp, [chatId+timestamp]'
     });
   }
   
@@ -25,31 +25,62 @@ class ClaudeDatabase extends Dexie {
   
   async createChat(title: string, conversationId?: number) {
     const now = new Date().toISOString();
-    return await this.chats.add({
+    const chatId = await this.chats.add({
       title,
       created_at: now,
       updated_at: now,
       conversationId
     });
+    
+    console.log('Created new chat with ID:', chatId);
+    return chatId;
   }
   
   async addChatMessage(message: ChatMessage) {
-    await this.chatMessages.add(message);
-    await this.chats.update(message.chatId, {
-      updated_at: new Date().toISOString()
-    });
+    try {
+      console.log('Adding chat message:', message);
+      await this.chatMessages.add(message);
+      await this.chats.update(message.chatId, {
+        updated_at: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error adding chat message:', error);
+      throw error;
+    }
   }
   
   async getChatMessages(chatId: number) {
-    return await this.chatMessages
-      .where('chatId')
-      .equals(chatId)
-      .sortBy('timestamp');
+    try {
+      console.log('Fetching messages for chat ID:', chatId);
+      if (typeof chatId !== 'number') {
+        throw new Error('Invalid chat ID: must be a number');
+      }
+      
+      const messages = await this.chatMessages
+        .where('chatId')
+        .equals(chatId)
+        .sortBy('timestamp');
+      
+      console.log('Retrieved messages:', messages);
+      return messages;
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      throw error;
+    }
   }
   
   async deleteChats() {
-    await this.chats.clear();
-    await this.chatMessages.clear();
+    try {
+      console.log('Deleting all chats and chat messages');
+      await this.transaction('rw', this.chats, this.chatMessages, async () => {
+        await this.chats.clear();
+        await this.chatMessages.clear();
+      });
+      console.log('Successfully deleted all chats and messages');
+    } catch (error) {
+      console.error('Error deleting chats:', error);
+      throw error;
+    }
   }
   
   async addConversation(conversation: Omit<Conversation, 'id'>) {
