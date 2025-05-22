@@ -24,6 +24,14 @@ class ClaudeDatabase extends Dexie {
     await this.chats.clear();
     await this.chatMessages.clear();
   }
+
+  async resetChatDatabase() {
+    // Delete the entire database and recreate it
+    await this.delete();
+    const newDb = new ClaudeDatabase();
+    await newDb.open();
+    return newDb;
+  }
   
   async addConversation(conversation: Omit<Conversation, 'id'>) {
     return await this.conversations.add(conversation);
@@ -31,13 +39,6 @@ class ClaudeDatabase extends Dexie {
   
   async addMessages(messages: Omit<Message, 'id'>[]) {
     return await this.messages.bulkAdd(messages);
-  }
-  
-  async getConversationMessages(conversationId: number) {
-    return await this.messages
-      .where('conversationId')
-      .equals(conversationId)
-      .toArray();
   }
   
   async createChat(title: string, conversationId?: number) {
@@ -67,7 +68,6 @@ class ClaudeDatabase extends Dexie {
   async searchConversations(term: string, dateFilter: DateFilter): Promise<SearchResult[]> {
     const searchTerm = term.toLowerCase();
     
-    // Create a filter function for dates
     const isWithinDateRange = (date: string | null) => {
       if (!date) return true;
       const timestamp = new Date(date).getTime();
@@ -87,9 +87,7 @@ class ClaudeDatabase extends Dexie {
       return true;
     };
     
-    // Search in conversation titles and messages
     const [titleMatches, messageMatches] = await Promise.all([
-      // Search in titles
       this.conversations
         .filter(conversation => 
           conversation.title.toLowerCase().includes(searchTerm) &&
@@ -97,7 +95,6 @@ class ClaudeDatabase extends Dexie {
         )
         .toArray(),
       
-      // Search in messages
       this.messages
         .filter(message => 
           message.text.toLowerCase().includes(searchTerm)
@@ -105,7 +102,6 @@ class ClaudeDatabase extends Dexie {
         .toArray()
     ]);
     
-    // Group message matches by conversation
     const messageMatchesByConversation = new Map<number, Message[]>();
     messageMatches.forEach(message => {
       const matches = messageMatchesByConversation.get(message.conversationId) || [];
@@ -113,22 +109,18 @@ class ClaudeDatabase extends Dexie {
       messageMatchesByConversation.set(message.conversationId, matches);
     });
     
-    // Get conversations for message matches
     const conversationsFromMessages = await Promise.all(
       Array.from(messageMatchesByConversation.keys()).map(id => 
         this.conversations.get(id)
       )
     );
     
-    // Filter conversations by date range
     const filteredConversationsFromMessages = conversationsFromMessages.filter(
       conv => conv && isWithinDateRange(conv.created_at)
     );
     
-    // Combine results
     const results = new Map<number, SearchResult>();
     
-    // Add title matches
     titleMatches.forEach(conv => {
       if (conv) {
         results.set(conv.id, {
@@ -139,7 +131,6 @@ class ClaudeDatabase extends Dexie {
       }
     });
     
-    // Add message matches
     filteredConversationsFromMessages.forEach((conv) => {
       if (!conv) return;
       
@@ -158,7 +149,6 @@ class ClaudeDatabase extends Dexie {
       }
     });
     
-    // Convert to array and sort by date
     return Array.from(results.values())
       .sort((a, b) => 
         new Date(b.conversation.created_at || 0).getTime() - 
