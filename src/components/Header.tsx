@@ -29,10 +29,10 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleClearChats = async () => {
     try {
-      const newDb = await db.resetChatDatabase();
+      await db.deleteChats();
       window.location.reload();
     } catch (error) {
-      console.error('Error clearing chat database:', error);
+      console.error('Error clearing chats:', error);
     }
   };
 

@@ -21,24 +21,6 @@ class ClaudeDatabase extends Dexie {
   async resetDatabase() {
     await this.conversations.clear();
     await this.messages.clear();
-    await this.chats.clear();
-    await this.chatMessages.clear();
-  }
-
-  async resetChatDatabase() {
-    // Delete the entire database and recreate it
-    await this.delete();
-    const newDb = new ClaudeDatabase();
-    await newDb.open();
-    return newDb;
-  }
-  
-  async addConversation(conversation: Omit<Conversation, 'id'>) {
-    return await this.conversations.add(conversation);
-  }
-  
-  async addMessages(messages: Omit<Message, 'id'>[]) {
-    return await this.messages.bulkAdd(messages);
   }
   
   async createChat(title: string, conversationId?: number) {
@@ -63,6 +45,26 @@ class ClaudeDatabase extends Dexie {
       .where('chatId')
       .equals(chatId)
       .sortBy('timestamp');
+  }
+  
+  async deleteChats() {
+    await this.chats.clear();
+    await this.chatMessages.clear();
+  }
+  
+  async addConversation(conversation: Omit<Conversation, 'id'>) {
+    return await this.conversations.add(conversation);
+  }
+  
+  async addMessages(messages: Omit<Message, 'id'>[]) {
+    return await this.messages.bulkAdd(messages);
+  }
+  
+  async getConversationMessages(conversationId: number) {
+    return await this.messages
+      .where('conversationId')
+      .equals(conversationId)
+      .toArray();
   }
   
   async searchConversations(term: string, dateFilter: DateFilter): Promise<SearchResult[]> {
